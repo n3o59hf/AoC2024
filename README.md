@@ -19,6 +19,8 @@ It's possible to also add inputs manually into `/input/{year}/day{n}.txt`.
 
 ## Running
 
+Project can be run as a binary (`cargo run`).
+
 `cargo aoc` to run latest implemented day.
 
 `cargo aoc -d {day} -p {part}` to run specific day and specific part.
