@@ -1,0 +1,10 @@
+[package]
+name = "advent-of-code-2024"
+version = "0.1.0"
+edition = "2021"
+authors = ["Elviss Kustans <n3o59hf@gmail.com>"]
+
+[dependencies]
+prse = "1.2.1"
+aoc-runner = "0.3.0"
+aoc-runner-derive = "0.3.0"
