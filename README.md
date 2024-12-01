@@ -1,5 +1,9 @@
 # AoC 2024
 
+AoC solutions in Rust. 
+
+See [AoC 2024](https://adventofcode.com/2024/) for puzzles.
+
 ## Setup
 
 ### Automation 
