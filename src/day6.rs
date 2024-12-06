@@ -1,15 +1,17 @@
 use crate::utils::c2::C2;
 use aoc_runner_derive::{aoc, aoc_generator};
-use std::collections::{HashMap, HashSet};
+
+use fxhash::{FxHashMap, FxHashSet};
+
 
 struct LabMap {
-    pub tiles: HashMap<C2, char>,
+    pub tiles: FxHashMap<C2, char>,
     pub guard_start: C2,
     pub guard_direction: C2,
 }
 #[aoc_generator(day6)]
 fn parse(input: &str) -> LabMap {
-    let mut tiles = HashMap::new();
+    let mut tiles = FxHashMap::default();
     let mut guard_start = C2::ZERO;
     let mut guard_direction = C2::ZERO;
 
@@ -17,8 +19,7 @@ fn parse(input: &str) -> LabMap {
         for (x, c) in line.chars().enumerate() {
             let coord = C2::new(x as i32, y as i32);
             match c {
-                '.' => {tiles.insert(coord, c);}
-                '#' => {tiles.insert(coord, c);}
+                '.' | '#' => {tiles.insert(coord, c);}
                 '^' => {
                     guard_start = coord;
                     guard_direction = C2::new(0, -1);
@@ -53,7 +54,7 @@ fn parse(input: &str) -> LabMap {
 
 #[aoc(day6, part1)]
 fn part1(input: &LabMap) -> i32 {
-    let mut visited : HashSet<C2>= HashSet::new();
+    let mut visited : FxHashSet<C2>= FxHashSet::default();
 
     let mut guard_position = input.guard_start;
     let mut guard_direction = input.guard_direction;
@@ -87,8 +88,8 @@ fn part2(input: &LabMap) -> i32 {
         }
     }
 
-    let mut successful_obstacles: HashSet<C2> = HashSet::new();
-    let mut failed_obstacles: HashSet<C2> = HashSet::new();
+    let mut successful_obstacles: FxHashSet<C2> = FxHashSet::default();
+    let mut failed_obstacles: FxHashSet<C2> = FxHashSet::default();
 
     'path: for i in 1..path.len() {
         let new_obstacle = path[i].0;
@@ -98,7 +99,7 @@ fn part2(input: &LabMap) -> i32 {
         guard_position = path[i-1].0;
         guard_direction = path[i-1].1;
 
-        let mut visited: HashSet<(C2,C2)> = path.iter().take(i-1).cloned().collect();
+        let mut visited: FxHashSet<(C2,C2)> = path.iter().take(i-1).cloned().collect();
         
         while input.tiles.contains_key(&guard_position) {
             if !visited.insert((guard_position, guard_direction)) {
@@ -112,7 +113,7 @@ fn part2(input: &LabMap) -> i32 {
                 guard_position = next_position;
             }
         }
-        
+
         failed_obstacles.insert(new_obstacle);
     }
 
