@@ -19,6 +19,7 @@ pub struct C2 {
 }
 
 impl C2 {
+    pub const ZERO: C2 = C2 { x: 0, y: 0 };
     pub const fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
@@ -72,5 +73,11 @@ impl Mul<C2> for i32 {
             x: c.x * self,
             y: c.y * self,
         }
+    }
+}
+
+impl C2 {
+    pub fn rotate_right(&self) -> Self {
+        C2{ x: -self.y, y: self.x }
     }
 }
