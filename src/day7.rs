@@ -13,13 +13,25 @@ fn parse(input: &str) -> Vec<(u64, Vec<u64>)> {
                 .map(|x| x.parse::<u64>())
                 .filter_map(Result::ok)
                 .collect();
-
             (result, parts)
         })
         .collect()
 }
 
+fn concat(a: u64, b: u64) -> u64 {
+    let digits = if b == 0 {
+        1
+    } else {
+        (b as f64).log10().floor() as u32 + 1
+    };
+
+    a * 10u64.pow(digits) + b
+}
+
 fn check_expression(result: u64, first: u64, rest: Iter<u64>, allow_concat: bool) -> bool {
+    if first > result {
+        return false;
+    }
     let mut rest = rest.clone();
     let second = rest.next();
     match second {
@@ -28,17 +40,11 @@ fn check_expression(result: u64, first: u64, rest: Iter<u64>, allow_concat: bool
             check_expression(result, first + second, rest.clone(), allow_concat)
                 || check_expression(result, first * second, rest.clone(), allow_concat)
                 || (allow_concat
-                    && check_expression(
-                        result,
-                        format!("{}{}", first, second)
-                            .parse::<u64>()
-                            .expect("Should fit"),
-                        rest.clone(),
-                        allow_concat,
-                    ))
+                    && check_expression(result, concat(first, *second), rest.clone(), allow_concat))
         }
     }
 }
+
 #[aoc(day7, part1)]
 fn part1(input: &[(u64, Vec<u64>)]) -> u64 {
     input
