@@ -14,8 +14,8 @@ pub static C2_8_NEIGHBORS: [C2; 8] = [
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct C2 {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl C2 {
@@ -79,5 +79,10 @@ impl Mul<C2> for i32 {
 impl C2 {
     pub fn rotate_right(&self) -> Self {
         C2{ x: -self.y, y: self.x }
+    }
+    
+    pub fn mirror(self, around: C2) -> C2 {
+        let delta = around - self;
+        around + delta
     }
 }
