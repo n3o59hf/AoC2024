@@ -1,6 +1,18 @@
 use crate::utils::c2::C2;
 use aoc_runner_derive::{aoc, aoc_generator};
 use std::collections::{HashMap, HashSet};
+use std::fmt::Display;
+
+// CodSpeed compatibility
+#[allow(dead_code)]
+pub fn part1(input: &str) -> impl Display {
+    part1_solution(&parse(input))
+}
+#[allow(dead_code)]
+fn part2(input: &str) -> impl Display {
+    part2_solution(&parse(input))
+}
+// CodSpeed compatibility end
 
 fn group_antennas(input: Vec<(char, C2)>) -> HashMap<char, Vec<C2>> {
     let mut groups: HashMap<char, Vec<C2>> = HashMap::new();
@@ -38,7 +50,7 @@ fn parse(input: &str) -> Field {
 
 
 #[aoc(day8, part1)]
-fn part1(input: &Field) -> usize {
+fn part1_solution(input: &Field) -> usize {
     let mut antinodes: HashSet<C2> = HashSet::new();
 
     for (_, locations) in input.antennas.iter() {
@@ -58,7 +70,7 @@ fn part1(input: &Field) -> usize {
 }
 
 #[aoc(day8, part2)]
-fn part2(input: &Field) -> usize {
+fn part2_solution(input: &Field) -> usize {
     let mut antinodes: HashSet<C2> = HashSet::new();
 
     for (_, locations) in input.antennas.iter() {
@@ -101,11 +113,11 @@ mod tests {
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse(TEST_DATA)), 14);
+        assert_eq!(part1_solution(&parse(TEST_DATA)), 14);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse(TEST_DATA)),34);
+        assert_eq!(part2_solution(&parse(TEST_DATA)),34);
     }
 }

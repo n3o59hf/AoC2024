@@ -1,5 +1,16 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use prse::parse;
+use std::fmt::Display;
+// CodSpeed compatibility
+#[allow(dead_code)]
+pub fn part1(input: &str) -> impl Display {
+    part1_solution(&parse(input))
+}
+#[allow(dead_code)]
+fn part2(input: &str) -> impl Display {
+    part2_solution(&parse(input))
+}
+// CodSpeed compatibility end
 
 #[aoc_generator(day1)]
 fn parse(input: &str) -> (Vec<i32>, Vec<i32>) {
@@ -16,7 +27,7 @@ fn parse(input: &str) -> (Vec<i32>, Vec<i32>) {
 }
 
 #[aoc(day1, part1)]
-fn part1(input: &(Vec<i32>, Vec<i32>)) -> i32 {
+fn part1_solution(input: &(Vec<i32>, Vec<i32>)) -> i32 {
     let (mut list1, mut list2) = input.clone();
 
     list1.sort();
@@ -29,7 +40,7 @@ fn part1(input: &(Vec<i32>, Vec<i32>)) -> i32 {
 }
 
 #[aoc(day1, part2)]
-fn part2(input: &(Vec<i32>, Vec<i32>)) -> i32 {
+fn part2_solution(input: &(Vec<i32>, Vec<i32>)) -> i32 {
     let (mut list1, mut list2) = input.clone();
 
     list1.sort();
@@ -57,11 +68,11 @@ mod tests {
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse(INPUT)), 11);
+        assert_eq!(part1_solution(&parse(INPUT)), 11);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse(INPUT)), 31);
+        assert_eq!(part2_solution(&parse(INPUT)), 31);
     }
 }

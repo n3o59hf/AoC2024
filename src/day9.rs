@@ -1,5 +1,17 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use std::clone::Clone;
+use std::fmt::Display;
+
+// CodSpeed compatibility
+#[allow(dead_code)]
+pub fn part1(input: &str) -> impl Display {
+    part1_solution(&parse(input))
+}
+#[allow(dead_code)]
+fn part2(input: &str) -> impl Display {
+    part2_solution(&parse(input))
+}
+// CodSpeed compatibility end
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 enum Entry {
@@ -69,7 +81,7 @@ fn checksum(data: &[i64]) -> u64 {
 }
 
 #[aoc(day9, part1)]
-fn part1(input: &Vec<Entry>) -> u64 {
+fn part1_solution(input: &Vec<Entry>) -> u64 {
     let mut data = expand(input);
 
     let mut a = 0usize;
@@ -115,7 +127,7 @@ fn merge_free_spaces(vec: Vec<Entry>) -> Vec<Entry> {
 }
 
 #[aoc(day9, part2)]
-fn part2(input: &[Entry]) -> u64 {
+fn part2_solution(input: &[Entry]) -> u64 {
     let mut data = input.to_owned();
     data = merge_free_spaces(data);
     let mut to_process: Vec<&File> = input
@@ -168,16 +180,16 @@ mod tests {
 
     #[test]
     fn part1_example_simple() {
-        assert_eq!(part1(&parse(TEST_DATA_SIMPLE)), 60);
+        assert_eq!(part1_solution(&parse(TEST_DATA_SIMPLE)), 60);
     }
 
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse(TEST_DATA)), 1928);
+        assert_eq!(part1_solution(&parse(TEST_DATA)), 1928);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse(TEST_DATA)), 2858);
+        assert_eq!(part2_solution(&parse(TEST_DATA)), 2858);
     }
 }

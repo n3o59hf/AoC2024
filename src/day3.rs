@@ -1,6 +1,17 @@
-use std::fmt::{Debug, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use aoc_runner_derive::{aoc, aoc_generator};
 use regex::Regex;
+
+// CodSpeed compatibility
+#[allow(dead_code)]
+pub fn part1(input: &str) -> impl Display {
+    part1_solution(&parse(input))
+}
+#[allow(dead_code)]
+fn part2(input: &str) -> impl Display {
+    part2_solution(&parse(input))
+}
+// CodSpeed compatibility end
 
 enum Instructions {
     Mul(i32, i32),
@@ -41,12 +52,12 @@ fn parse(input: &str) -> Vec<Instructions> {
 }
 
 #[aoc(day3, part1)]
-fn part1(input: &[Instructions]) -> i32 {
+fn part1_solution(input: &[Instructions]) -> i32 {
     input.iter().map(|x| if let Instructions::Mul(n1,n2) = x { n1*n2 } else { 0 } ).sum()
 }
 
 #[aoc(day3, part2)]
-fn part2(input: &[Instructions]) -> i32 {
+fn part2_solution(input: &[Instructions]) -> i32 {
     let mut sum = 0;
     let mut enabled = true;
     for instruction in input {
@@ -66,7 +77,7 @@ mod tests {
     #[test]
     fn part1_example() {
         assert_eq!(
-            part1(&parse(
+            part1_solution(&parse(
                 "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
             )),
             161
@@ -76,7 +87,7 @@ mod tests {
     #[test]
     fn part2_example() {
         assert_eq!(
-            part2(&parse(
+            part2_solution(&parse(
                 "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
             )),
             48

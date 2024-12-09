@@ -1,6 +1,18 @@
 use crate::utils::c2::{C2, C2_8_NEIGHBORS};
 use aoc_runner_derive::{aoc, aoc_generator};
 use std::collections::HashMap;
+use std::fmt::Display;
+
+// CodSpeed compatibility
+#[allow(dead_code)]
+pub fn part1(input: &str) -> impl Display {
+    part1_solution(&parse(input))
+}
+#[allow(dead_code)]
+fn part2(input: &str) -> impl Display {
+    part2_solution(&parse(input))
+}
+// CodSpeed compatibility end
 
 struct WordField {
     letters: HashMap<C2, char>,
@@ -83,7 +95,7 @@ fn parse(input: &str) -> WordField {
 }
 
 #[aoc(day4, part1)]
-fn part1(input: &WordField) -> i32 {
+fn part1_solution(input: &WordField) -> i32 {
     input
         .get_all_coordinates()
         .iter()
@@ -92,7 +104,7 @@ fn part1(input: &WordField) -> i32 {
 }
 
 #[aoc(day4, part2)]
-fn part2(input: &WordField) -> i32 {
+fn part2_solution(input: &WordField) -> i32 {
     input
         .get_all_coordinates()
         .iter()
@@ -115,11 +127,11 @@ MAMMMXMMMM
 MXMXAXMASX"#;
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse(TEST_INPUT)), 18);
+        assert_eq!(part1_solution(&parse(TEST_INPUT)), 18);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse(TEST_INPUT)), 9);
+        assert_eq!(part2_solution(&parse(TEST_INPUT)), 9);
     }
 }

@@ -1,6 +1,18 @@
+use std::fmt::Display;
 use aoc_runner_derive::{aoc, aoc_generator};
 use prse::parse;
 use std::slice::Iter;
+
+// CodSpeed compatibility
+#[allow(dead_code)]
+pub fn part1(input: &str) -> impl Display {
+    part1_solution(&parse(input))
+}
+#[allow(dead_code)]
+fn part2(input: &str) -> impl Display {
+    part2_solution(&parse(input))
+}
+// CodSpeed compatibility end
 
 #[aoc_generator(day7)]
 fn parse(input: &str) -> Vec<(u64, Vec<u64>)> {
@@ -46,7 +58,7 @@ fn check_expression(result: u64, first: u64, rest: Iter<u64>, allow_concat: bool
 }
 
 #[aoc(day7, part1)]
-fn part1(input: &[(u64, Vec<u64>)]) -> u64 {
+fn part1_solution(input: &[(u64, Vec<u64>)]) -> u64 {
     input
         .iter()
         .filter(|(r, d)| {
@@ -59,7 +71,7 @@ fn part1(input: &[(u64, Vec<u64>)]) -> u64 {
 }
 
 #[aoc(day7, part2)]
-fn part2(input: &[(u64, Vec<u64>)]) -> u64 {
+fn part2_solution(input: &[(u64, Vec<u64>)]) -> u64 {
     input
         .iter()
         .filter(|(r, d)| {
@@ -85,11 +97,11 @@ mod tests {
 292: 11 6 16 20"#;
     #[test]
     fn part1_example() {
-        assert_eq!(part1(&parse(TEST_DATA)), 3749);
+        assert_eq!(part1_solution(&parse(TEST_DATA)), 3749);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2(&parse(TEST_DATA)), 11387);
+        assert_eq!(part2_solution(&parse(TEST_DATA)), 11387);
     }
 }
