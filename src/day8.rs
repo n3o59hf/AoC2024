@@ -1,7 +1,7 @@
 use crate::utils::c2::C2;
 use aoc_runner_derive::{aoc, aoc_generator};
-use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
+use fxhash::{FxHashMap, FxHashSet};
 
 // CodSpeed compatibility
 #[allow(dead_code)]
@@ -14,15 +14,15 @@ pub fn part2(input: &str) -> impl Display {
 }
 // CodSpeed compatibility end
 
-fn group_antennas(input: Vec<(char, C2)>) -> HashMap<char, Vec<C2>> {
-    let mut groups: HashMap<char, Vec<C2>> = HashMap::new();
+fn group_antennas(input: Vec<(char, C2)>) -> FxHashMap<char, Vec<C2>> {
+    let mut groups: FxHashMap<char, Vec<C2>> = FxHashMap::default();
     for (freq, location) in input {
         groups.entry(freq).or_default().push(location);
     }
     groups
 }
 struct Field {
-    antennas: HashMap<char, Vec<C2>>,
+    antennas: FxHashMap<char, Vec<C2>>,
     border: C2,
 }
 #[aoc_generator(day8)]
@@ -48,10 +48,9 @@ fn parse(input: &str) -> Field {
     }
 }
 
-
 #[aoc(day8, part1)]
 fn part1_solution(input: &Field) -> usize {
-    let mut antinodes: HashSet<C2> = HashSet::new();
+    let mut antinodes: FxHashSet<C2> = FxHashSet::default();
 
     for (_, locations) in input.antennas.iter() {
         for a in locations {
@@ -71,7 +70,7 @@ fn part1_solution(input: &Field) -> usize {
 
 #[aoc(day8, part2)]
 fn part2_solution(input: &Field) -> usize {
-    let mut antinodes: HashSet<C2> = HashSet::new();
+    let mut antinodes: FxHashSet<C2> = FxHashSet::default();
 
     for (_, locations) in input.antennas.iter() {
         for a in locations {
