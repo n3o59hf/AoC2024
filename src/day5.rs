@@ -12,7 +12,7 @@ pub fn part1(input: &str) -> impl Display {
     part1_solution(&parse(input))
 }
 #[allow(dead_code)]
-fn part2(input: &str) -> impl Display {
+pub fn part2(input: &str) -> impl Display {
     part2_solution(&parse(input))
 }
 // CodSpeed compatibility end
