@@ -98,3 +98,75 @@ impl C2 {
         ]
     }
 }
+
+#[derive(Default)]
+pub struct C2Field<T> {
+    width: usize,
+    height: usize,
+    store: Vec<T>,
+    indices: Vec<C2>,
+}
+
+impl<T> C2Field<T>
+where
+    T: Clone + Default,
+{
+    fn indices(width: usize, height: usize) -> Vec<C2> {
+        let mut indices = Vec::with_capacity(width * height);
+        for y in 0..height {
+            for x in 0..width {
+                indices.push(C2::new(x as i32, y as i32));
+            }
+        }
+        indices
+    }
+
+    #[allow(dead_code)]
+    pub fn new(width: usize, height: usize) -> Self {
+        Self {
+            width,
+            height,
+            store: vec![T::default(); width * height],
+            indices: Self::indices(width, height),
+        }
+    }
+
+    pub fn from_string(input: &str, mapping: fn(char) -> T) -> C2Field<T> {
+        let mut store = Vec::new();
+        let width = input.find("\n").expect("At least one endline");
+        let lines = input.lines();
+        let mut height = 0;
+
+        for line in lines {
+            height += 1;
+            let line = line.chars().map(mapping);
+            store.extend(line);
+            if store.len() != width * height {
+                panic!("Not all lines are the same")
+            }
+        }
+
+        C2Field {
+            width,
+            height,
+            store,
+            indices: Self::indices(width, height),
+        }
+    }
+
+    pub fn get(&self, coord: &C2) -> Option<&T> {
+        if coord.x < 0
+            || coord.y < 0
+            || coord.y as usize >= self.height
+            || coord.x as usize >= self.width
+        {
+            None
+        } else {
+            Some(&self.store[coord.y as usize * self.width + coord.x as usize])
+        }
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (&C2, &T)> {
+        self.indices.iter().zip(self.store.iter())
+    }
+}

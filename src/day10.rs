@@ -1,6 +1,5 @@
-use crate::utils::c2::C2;
+use crate::utils::c2::{C2Field, C2};
 use aoc_runner_derive::{aoc, aoc_generator};
-use fxhash::FxHashMap;
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use std::collections::HashSet;
@@ -17,21 +16,14 @@ pub fn part2(input: &str) -> impl Display {
 }
 // CodSpeed compatibility end
 #[aoc_generator(day10)]
-fn parse(input: &str) -> FxHashMap<C2, usize> {
-    let mut map: FxHashMap<_, _> = FxHashMap::default();
-
-    for (y, line) in input.lines().enumerate() {
-        for (x, c) in line.chars().enumerate() {
-            let h = c.to_digit(10).unwrap();
-            map.insert(C2::new(x as i32, y as i32), h as usize);
-        }
-    }
-
-    map
+fn parse(input: &str) -> C2Field<usize> {
+    C2Field::from_string(input, |h| {
+        h.to_digit(10).expect("Should be a digit") as usize
+    })
 }
 
 #[inline(always)]
-fn traverse_part_1(from: &C2, map: &FxHashMap<C2, usize>) -> Vec<C2> {
+fn traverse_part_1(from: &C2, map: &C2Field<usize>) -> Vec<C2> {
     if let Some(h) = map.get(from) {
         if *h == 9 {
             vec![*from]
@@ -48,7 +40,7 @@ fn traverse_part_1(from: &C2, map: &FxHashMap<C2, usize>) -> Vec<C2> {
 }
 
 #[aoc(day10, part1)]
-fn part1_solution(input: &FxHashMap<C2, usize>) -> usize {
+fn part1_solution(input: &C2Field<usize>) -> usize {
     let starts: Vec<&C2> = input
         .iter()
         .filter(|(_, &h)| h == 0)
@@ -63,7 +55,7 @@ fn part1_solution(input: &FxHashMap<C2, usize>) -> usize {
 }
 
 #[inline(always)]
-fn traverse_part_2(from: &C2, map: &FxHashMap<C2, usize>) -> usize {
+fn traverse_part_2(from: &C2, map: &C2Field<usize>) -> usize {
     if let Some(h) = map.get(from) {
         if *h == 9 {
             1
@@ -80,7 +72,7 @@ fn traverse_part_2(from: &C2, map: &FxHashMap<C2, usize>) -> usize {
 }
 
 #[aoc(day10, part2)]
-fn part2_solution(input: &FxHashMap<C2, usize>) -> usize {
+fn part2_solution(input: &C2Field<usize>) -> usize {
     let starts: Vec<&C2> = input
         .iter()
         .filter(|(_, &h)| h == 0)
