@@ -12,6 +12,12 @@ pub static C2_8_NEIGHBORS: [C2; 8] = [
     C2::new(-1, -1),
 ];
 
+pub static C2_4_NEIGHBORS: [C2; 4] = [
+    C2::new(0, -1),
+    C2::new(1, 0),
+    C2::new(0, 1),
+    C2::new(-1, 0),
+];
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct C2 {
     pub x: i32,
@@ -86,3 +92,5 @@ impl C2 {
         around + delta
     }
 }
+
+
