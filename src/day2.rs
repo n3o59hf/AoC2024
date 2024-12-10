@@ -1,5 +1,5 @@
-use std::fmt::Display;
 use aoc_runner_derive::{aoc, aoc_generator};
+use std::fmt::Display;
 // CodSpeed compatibility
 #[allow(dead_code)]
 pub fn part1(input: &str) -> impl Display {
@@ -62,7 +62,7 @@ fn part2_solution(input: &[Vec<i32>]) -> i32 {
                         .filter(move |(j, _)| i != *j)
                         .map(|(_, p)| *p)
                 });
-                
+
                 if variants.any(|variant| is_safe(&variant.collect::<Vec<i32>>())) {
                     1
                 } else {

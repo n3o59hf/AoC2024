@@ -1,10 +1,10 @@
-use rayon::iter::ParallelIterator;
-use crate::utils::c2::{C2, C2_4_NEIGHBORS};
+use crate::utils::c2::C2;
 use aoc_runner_derive::{aoc, aoc_generator};
 use fxhash::FxHashMap;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
 use std::collections::HashSet;
 use std::fmt::Display;
-use rayon::iter::IntoParallelRefIterator;
 
 // CodSpeed compatibility
 #[allow(dead_code)]
@@ -36,11 +36,10 @@ fn traverse_part_1(from: &C2, map: &FxHashMap<C2, usize>) -> Vec<C2> {
         if *h == 9 {
             vec![*from]
         } else {
-            C2_4_NEIGHBORS
+            from.neighbors_4()
                 .iter()
-                .map(|c| (*c) + (*from))
                 .filter(|c| map.get(c) == Some(&(h + 1)))
-                .flat_map(|c| traverse_part_1(&c, map))
+                .flat_map(|c| traverse_part_1(c, map))
                 .collect()
         }
     } else {
@@ -69,11 +68,10 @@ fn traverse_part_2(from: &C2, map: &FxHashMap<C2, usize>) -> usize {
         if *h == 9 {
             1
         } else {
-            C2_4_NEIGHBORS
+            from.neighbors_4()
                 .iter()
-                .map(|c| (*c) + (*from))
                 .filter(|c| map.get(c) == Some(&(h + 1)))
-                .map(|c| traverse_part_2(&c, map))
+                .map(|c| traverse_part_2(c, map))
                 .sum()
         }
     } else {

@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use crate::utils::c2::C2;
 use aoc_runner_derive::{aoc, aoc_generator};
+use std::fmt::Display;
 
 use fxhash::{FxHashMap, FxHashSet};
 
@@ -14,7 +14,6 @@ pub fn part2(input: &str) -> impl Display {
     part2_solution(&parse(input))
 }
 // CodSpeed compatibility end
-
 
 struct LabMap {
     pub tiles: FxHashMap<C2, char>,
@@ -31,7 +30,9 @@ fn parse(input: &str) -> LabMap {
         for (x, c) in line.chars().enumerate() {
             let coord = C2::new(x as i32, y as i32);
             match c {
-                '.' | '#' => {tiles.insert(coord, c);}
+                '.' | '#' => {
+                    tiles.insert(coord, c);
+                }
                 '^' => {
                     guard_start = coord;
                     guard_direction = C2::new(0, -1);
@@ -66,7 +67,7 @@ fn parse(input: &str) -> LabMap {
 
 #[aoc(day6, part1)]
 fn part1_solution(input: &LabMap) -> i32 {
-    let mut visited : FxHashSet<C2>= FxHashSet::default();
+    let mut visited: FxHashSet<C2> = FxHashSet::default();
 
     let mut guard_position = input.guard_start;
     let mut guard_direction = input.guard_direction;
@@ -86,12 +87,12 @@ fn part1_solution(input: &LabMap) -> i32 {
 
 #[aoc(day6, part2)]
 fn part2_solution(input: &LabMap) -> i32 {
-    let mut path: Vec<(C2,C2)> = Vec::new();
+    let mut path: Vec<(C2, C2)> = Vec::new();
     let mut guard_position = input.guard_start;
     let mut guard_direction = input.guard_direction;
 
     while input.tiles.contains_key(&guard_position) {
-        path.push((guard_position,guard_direction));
+        path.push((guard_position, guard_direction));
         let next_position = guard_position + guard_direction;
         if input.tiles.get(&next_position) == Some(&'#') {
             guard_direction = guard_direction.rotate_right();
@@ -105,14 +106,15 @@ fn part2_solution(input: &LabMap) -> i32 {
 
     'path: for i in 1..path.len() {
         let new_obstacle = path[i].0;
-        if successful_obstacles.contains(&new_obstacle) || failed_obstacles.contains(&new_obstacle) {
+        if successful_obstacles.contains(&new_obstacle) || failed_obstacles.contains(&new_obstacle)
+        {
             continue 'path;
         }
-        guard_position = path[i-1].0;
-        guard_direction = path[i-1].1;
+        guard_position = path[i - 1].0;
+        guard_direction = path[i - 1].1;
 
-        let mut visited: FxHashSet<(C2,C2)> = path.iter().take(i-1).cloned().collect();
-        
+        let mut visited: FxHashSet<(C2, C2)> = path.iter().take(i - 1).cloned().collect();
+
         while input.tiles.contains_key(&guard_position) {
             if !visited.insert((guard_position, guard_direction)) {
                 successful_obstacles.insert(new_obstacle);

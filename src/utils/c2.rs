@@ -12,12 +12,6 @@ pub static C2_8_NEIGHBORS: [C2; 8] = [
     C2::new(-1, -1),
 ];
 
-pub static C2_4_NEIGHBORS: [C2; 4] = [
-    C2::new(0, -1),
-    C2::new(1, 0),
-    C2::new(0, 1),
-    C2::new(-1, 0),
-];
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct C2 {
     pub x: i32,
@@ -84,13 +78,23 @@ impl Mul<C2> for i32 {
 
 impl C2 {
     pub fn rotate_right(&self) -> Self {
-        C2{ x: -self.y, y: self.x }
+        C2 {
+            x: -self.y,
+            y: self.x,
+        }
     }
-    
+
     pub fn mirror(self, around: C2) -> C2 {
         let delta = around - self;
         around + delta
     }
+
+    pub fn neighbors_4(&self) -> [C2; 4] {
+        [
+            C2::new(self.x, self.y - 1),
+            C2::new(self.x + 1, self.y),
+            C2::new(self.x, self.y + 1),
+            C2::new(self.x - 1, self.y),
+        ]
+    }
 }
-
-

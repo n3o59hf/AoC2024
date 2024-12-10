@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use aoc_runner_derive::{aoc, aoc_generator};
 use prse::parse;
+use std::fmt::Display;
 use std::slice::Iter;
 
 // CodSpeed compatibility

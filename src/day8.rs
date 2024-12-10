@@ -1,7 +1,7 @@
 use crate::utils::c2::C2;
 use aoc_runner_derive::{aoc, aoc_generator};
-use std::fmt::Display;
 use fxhash::{FxHashMap, FxHashSet};
+use std::fmt::Display;
 
 // CodSpeed compatibility
 #[allow(dead_code)]
@@ -30,7 +30,7 @@ fn parse(input: &str) -> Field {
     let lines = input.lines();
     let max_y = lines.count();
     let mut max_x = 0;
-    let mut antennas: Vec<(char,C2)> = Vec::new();
+    let mut antennas: Vec<(char, C2)> = Vec::new();
     for (y, line) in input.lines().enumerate() {
         if y == 0 {
             max_x = line.chars().count();
@@ -79,10 +79,14 @@ fn part2_solution(input: &Field) -> usize {
                     let a = *a;
                     let b = *b;
                     let delta = a - b;
-                    
+
                     let mut current = a;
-                    while current.x >= 0 && current.y >= 0 && current.x < input.border.x && current.y < input.border.y {
-                        antinodes.insert(current); 
+                    while current.x >= 0
+                        && current.y >= 0
+                        && current.x < input.border.x
+                        && current.y < input.border.y
+                    {
+                        antinodes.insert(current);
                         current = current + delta;
                     }
                 }
@@ -117,6 +121,6 @@ mod tests {
 
     #[test]
     fn part2_example() {
-        assert_eq!(part2_solution(&parse(TEST_DATA)),34);
+        assert_eq!(part2_solution(&parse(TEST_DATA)), 34);
     }
 }

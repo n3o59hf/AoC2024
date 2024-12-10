@@ -24,7 +24,9 @@ struct Rules {
 
 impl Rules {
     fn new(order: Vec<(i32, i32)>) -> Self {
-        Self { order: order.into_iter().collect() }
+        Self {
+            order: order.into_iter().collect(),
+        }
     }
 }
 

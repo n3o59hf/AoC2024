@@ -1,6 +1,6 @@
-use std::fmt::{Debug, Display, Formatter};
 use aoc_runner_derive::{aoc, aoc_generator};
 use regex::Regex;
+use std::fmt::{Debug, Display, Formatter};
 
 // CodSpeed compatibility
 #[allow(dead_code)]
@@ -45,7 +45,7 @@ fn parse(input: &str) -> Vec<Instructions> {
                 output.push(Instructions::Do);
             } else if mul_match == "don't()" {
                 output.push(Instructions::Dont);
-            } 
+            }
         }
     }
     output
@@ -53,7 +53,16 @@ fn parse(input: &str) -> Vec<Instructions> {
 
 #[aoc(day3, part1)]
 fn part1_solution(input: &[Instructions]) -> i32 {
-    input.iter().map(|x| if let Instructions::Mul(n1,n2) = x { n1*n2 } else { 0 } ).sum()
+    input
+        .iter()
+        .map(|x| {
+            if let Instructions::Mul(n1, n2) = x {
+                n1 * n2
+            } else {
+                0
+            }
+        })
+        .sum()
 }
 
 #[aoc(day3, part2)]
@@ -62,7 +71,11 @@ fn part2_solution(input: &[Instructions]) -> i32 {
     let mut enabled = true;
     for instruction in input {
         match instruction {
-            Instructions::Mul(n1, n2) => if enabled { sum += n1*n2; },
+            Instructions::Mul(n1, n2) => {
+                if enabled {
+                    sum += n1 * n2;
+                }
+            }
             Instructions::Do => enabled = true,
             Instructions::Dont => enabled = false,
         }
