@@ -28,10 +28,12 @@ fn solve(input: &[u64], times: u8) -> usize {
         *data.entry(x).or_insert(0) += 1;
     }
 
+    let mut newdata = FxHashMap::default();
     for _ in 0..times {
-        let mut newdata = FxHashMap::default();
-        for (k, size) in data {
-            if k == 0 {
+        newdata.clear();
+
+        for (k, size) in &data {
+            if *k == 0 {
                 *newdata.entry(1).or_insert(0) += size;
             } else {
                 let digits = k.ilog10() + 1;
@@ -48,7 +50,8 @@ fn solve(input: &[u64], times: u8) -> usize {
                 }
             }
         }
-        data = newdata;
+        std::mem::swap(&mut data, &mut newdata);
+
     }
 
     data.values().sum()
