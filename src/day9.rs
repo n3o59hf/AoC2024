@@ -33,6 +33,7 @@ impl File {
 
 #[aoc_generator(day9)]
 fn parse(input: &str) -> Vec<Entry> {
+    let input = input.trim_end();
     let mut id = 0u32;
     let mut empty = false;
     let mut output = Vec::new();

@@ -17,6 +17,7 @@ pub fn part2(input: &str) -> impl Display {
 // CodSpeed compatibility end
 #[aoc_generator(day10)]
 fn parse(input: &str) -> C2Field<usize> {
+    let input = input.trim_end();
     C2Field::from_string(input, |h| {
         h.to_digit(10).expect("Should be a digit") as usize
     })
