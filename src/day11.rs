@@ -1,6 +1,5 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use fxhash::FxHashMap;
-use itertools::Itertools;
 use std::fmt::Display;
 
 // CodSpeed compatibility
@@ -25,34 +24,27 @@ fn parse(input: &str) -> Vec<u64> {
 
 fn solve(input: &[u64], times: u8) -> usize {
     let mut data: FxHashMap<u64, usize> = FxHashMap::default();
-    let counts = input.iter().counts_by(|x| x);
-    for (x, c) in counts {
-        data.insert(*x, c);
+    for &x in input {
+        *data.entry(x).or_insert(0) += 1;
     }
 
     for _ in 0..times {
         let mut newdata = FxHashMap::default();
         for (k, size) in data {
             if k == 0 {
-                let existing_size = newdata.get(&1).unwrap_or(&0);
-                newdata.insert(1, size + existing_size);
+                *newdata.entry(1).or_insert(0) += size;
             } else {
                 let digits = k.ilog10() + 1;
-
                 if digits % 2 == 0 {
                     let divisor = 10u64.pow(digits / 2);
                     let k1 = k / divisor;
                     let k2 = k % divisor;
 
-                    let existing_size = newdata.get(&k1).unwrap_or(&0);
-                    newdata.insert(k1, size + existing_size);
-
-                    let existing_size = newdata.get(&k2).unwrap_or(&0);
-                    newdata.insert(k2, size + existing_size);
+                    *newdata.entry(k1).or_insert(0) += size;
+                    *newdata.entry(k2).or_insert(0) += size;
                 } else {
                     let new_k = k * 2024;
-                    let existing_size = newdata.get(&new_k).unwrap_or(&0);
-                    newdata.insert(new_k, size + existing_size);
+                    *newdata.entry(new_k).or_insert(0) += size;
                 }
             }
         }
