@@ -204,4 +204,9 @@ where
     pub fn width(&self) -> usize {
         self.width
     }
+
+    #[inline]
+    pub fn height(&self) -> usize {
+        self.height
+    }
 }

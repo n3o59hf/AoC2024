@@ -1,5 +1,6 @@
 use crate::utils::c2::{C2Field, C2, C2_DOWN, C2_LEFT, C2_RIGHT, C2_UP};
 use aoc_runner_derive::{aoc, aoc_generator};
+use fxhash::FxHashMap;
 use std::fmt::Display;
 
 // CodSpeed compatibility
@@ -67,107 +68,113 @@ const DIRECTIONS: [(C2, u8); 4] = [
     (C2_DOWN, DOWN),
     (C2_RIGHT, RIGHT),
 ];
-const VISITED: u8 = 0b10000;
-fn calculate_sides(map: &C2Field<char>, perimeter: &mut Vec<u8>, position: &C2) -> u32 {
+fn calculate_sides(
+    map: &C2Field<char>,
+    perimeter: &mut Vec<(usize, u8)>,
+    position: &C2,
+    id: usize,
+) -> u32 {
     let letter = *map
         .get(position)
         .expect("Should not be called on non existing position");
-    perimeter[map.indice(position)] = VISITED;
+
+    perimeter[map.indice(position)].0 = id;
 
     let mut count = 1;
 
     for (cd, d) in DIRECTIONS.iter() {
         let next = *position + *cd;
         if map.get(&next) != Some(&letter) {
-            perimeter[map.indice(position)] |= d;
-        } else if perimeter[map.indice(&next)] == 0 {
-            let sides = calculate_sides(map, perimeter, &next);
+            perimeter[map.indice(position)].1 |= d;
+        } else if perimeter[map.indice(&next)].0 == 0 {
+            let sides = calculate_sides(map, perimeter, &next, id);
             count += sides;
         }
     }
     count
 }
 
-fn count_sides(sides: &[u8], width: usize) -> u32 {
+fn count_sides(sides: &[(usize, u8)], max_elements: usize, width: usize) -> Vec<u32> {
     let height = sides.len() / width;
-    let mut count = 0;
-
+    let mut counts = vec![0u32; max_elements + 1];
     // horizontal
     for y in 0..height {
-        let mut up: bool = false;
-        let mut down: bool = false;
+        let mut up = 0usize;
+        let mut down = 0usize;
 
         for x in 0..width {
             let c = y * width + x;
-            if sides[c] & UP != 0 {
-                if !up {
-                    up = true;
-                    count += 1;
+            let (id, wall) = sides[c];
+            if wall & UP != 0 {
+                if up != id {
+                    up = id;
+                    counts[id] += 1;
                 }
             } else {
-                up = false;
+                up = 0;
             }
-            if sides[c] & DOWN != 0 {
-                if !down {
-                    down = true;
-                    count += 1;
+            if wall & DOWN != 0 {
+                if down != id {
+                    down = id;
+                    counts[id] += 1;
                 }
             } else {
-                down = false;
+                down = 0;
             }
         }
     }
 
     // vertical
     for x in 0..width {
-        let mut left: bool = false;
-        let mut right: bool = false;
+        let mut left = 0usize;
+        let mut right = 0usize;
 
         for y in 0..height {
             let c = y * width + x;
-            if sides[c] & LEFT != 0 {
-                if !left {
-                    left = true;
-                    count += 1;
+            let (id, wall) = sides[c];
+            if wall & LEFT != 0 {
+                if left != id {
+                    left = id;
+                    counts[id] += 1;
                 }
             } else {
-                left = false;
+                left = 0;
             }
-
-            if sides[c] & RIGHT != 0 {
-                if !right {
-                    right = true;
-                    count += 1;
+            if wall & RIGHT != 0 {
+                if right != id {
+                    right = id;
+                    counts[id] += 1;
                 }
             } else {
-                right = false;
+                right = 0;
             }
         }
     }
 
-    count
+    counts
 }
 
 #[aoc(day12, part2)]
 fn part2_solution(input: &C2Field<char>) -> u32 {
-    let mut sides = input.values().iter().map(|_| 0u8).collect::<Vec<_>>();
-    let mut visited = input.values().iter().map(|_| false).collect::<Vec<_>>();
-    let mut fence = 0;
+    let mut sides = input
+        .values()
+        .iter()
+        .map(|_| (0usize, 0u8))
+        .collect::<Vec<_>>();
+    let mut counts: FxHashMap<usize, u32> = FxHashMap::default();
     let keys = input.keys().clone();
+    let mut id = 0;
     for c in keys.iter() {
-        if !visited[input.indice(c)] {
-            sides.fill(0);
-            let count = calculate_sides(input, &mut sides, c);
-
-            let sides_count = count_sides(&sides, input.width());
-
-            fence += count * sides_count;
-            for (i, _) in sides.iter().enumerate().filter(|&(_, s)| *s != 0) {
-                visited[i] = true;
-            }
+        let i = input.indice(c);
+        if sides[i].0 == 0 {
+            id += 1;
+            let count = calculate_sides(input, &mut sides, c, id);
+            counts.insert(id, count);
         }
     }
-    fence
+    let sides_count = count_sides(&sides, id, input.width());
+
+    counts.iter().map(|(k, v)| sides_count[*k] * v).sum()
 }
 
 #[cfg(test)]
