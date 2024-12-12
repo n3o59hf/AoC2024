@@ -51,7 +51,6 @@ fn solve(input: &[u64], times: u8) -> usize {
             }
         }
         std::mem::swap(&mut data, &mut newdata);
-
     }
 
     data.values().sum()

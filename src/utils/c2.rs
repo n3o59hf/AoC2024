@@ -12,6 +12,11 @@ pub static C2_8_NEIGHBORS: [C2; 8] = [
     C2::new(-1, -1),
 ];
 
+pub const C2_UP: C2 = C2::new(0, -1);
+pub const C2_DOWN: C2 = C2::new(0, 1);
+pub const C2_LEFT: C2 = C2::new(-1, 0);
+pub const C2_RIGHT: C2 = C2::new(1, 0);
+
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
 pub struct C2 {
     pub x: i32,
@@ -33,7 +38,7 @@ impl Display for C2 {
 
 impl Add for C2 {
     type Output = Self; // The resulting type after addition
-
+    #[inline]
     fn add(self, other: Self) -> Self {
         Self {
             x: self.x + other.x,
@@ -45,7 +50,7 @@ impl Add for C2 {
 // Implementing the Sub trait
 impl Sub for C2 {
     type Output = Self; // The resulting type after subtraction
-
+    #[inline]
     fn sub(self, other: Self) -> Self {
         Self {
             x: self.x - other.x,
@@ -56,7 +61,7 @@ impl Sub for C2 {
 
 impl Mul<i32> for C2 {
     type Output = Self;
-
+    #[inline]
     fn mul(self, scalar: i32) -> Self {
         Self {
             x: self.x * scalar,
@@ -67,7 +72,7 @@ impl Mul<i32> for C2 {
 
 impl Mul<C2> for i32 {
     type Output = C2;
-
+    #[inline]
     fn mul(self, c: C2) -> C2 {
         C2 {
             x: c.x * self,
@@ -99,7 +104,7 @@ impl C2 {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone, Eq, PartialEq, Hash)]
 pub struct C2Field<T> {
     width: usize,
     height: usize,
@@ -107,6 +112,7 @@ pub struct C2Field<T> {
     indices: Vec<C2>,
 }
 
+#[allow(dead_code)]
 impl<T> C2Field<T>
 where
     T: Clone + Default,
@@ -154,6 +160,11 @@ where
         }
     }
 
+    #[inline(always)]
+    pub fn indice(&self, coord: &C2) -> usize {
+        coord.y as usize * self.width + coord.x as usize
+    }
+
     pub fn get(&self, coord: &C2) -> Option<&T> {
         if coord.x < 0
             || coord.y < 0
@@ -162,11 +173,35 @@ where
         {
             None
         } else {
-            Some(&self.store[coord.y as usize * self.width + coord.x as usize])
+            Some(&self.store[self.indice(coord)])
         }
     }
 
+    pub fn set(&mut self, coord: &C2, item: T) {
+        debug_assert!(
+            !(coord.x < 0
+                || coord.y < 0
+                || coord.y as usize >= self.height
+                || coord.x as usize >= self.width)
+        );
+        let i = self.indice(coord);
+        self.store[i] = item;
+    }
     pub fn iter(&self) -> impl Iterator<Item = (&C2, &T)> {
         self.indices.iter().zip(self.store.iter())
+    }
+    #[inline]
+    pub fn keys(&self) -> &Vec<C2> {
+        &self.indices
+    }
+
+    #[inline]
+    pub fn values(&self) -> &Vec<T> {
+        &self.store
+    }
+
+    #[inline]
+    pub fn width(&self) -> usize {
+        self.width
     }
 }
