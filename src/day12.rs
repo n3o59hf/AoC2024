@@ -32,7 +32,8 @@ fn calculate_perimeter_and_area(
         .get(position)
         .expect("Should not be called on non existing position");
     visited[map.indice(position)] = true;
-    for next in position.neighbors_4() {
+    for (d, _) in DIRECTIONS {
+        let next = *position + d;
         if map.get(&next) == Some(&letter) {
             if !visited[map.indice(&next)] {
                 values = calculate_perimeter_and_area(map, visited, &next, values);
@@ -77,20 +78,22 @@ fn calculate_sides(
     let letter = *map
         .get(position)
         .expect("Should not be called on non existing position");
-
-    perimeter[map.indice(position)].0 = id;
+    let letter = Some(&letter);
+    let i = map.indice(position); 
+    perimeter[i].0 = id;
 
     let mut count = 1;
 
+    let mut walls = 0;
     for (cd, d) in DIRECTIONS.iter() {
         let next = *position + *cd;
-        if map.get(&next) != Some(&letter) {
-            perimeter[map.indice(position)].1 |= d;
+        if map.get(&next) != letter {
+            walls |= d;
         } else if perimeter[map.indice(&next)].0 == 0 {
-            let sides = calculate_sides(map, perimeter, &next, id);
-            count += sides;
+            count += calculate_sides(map, perimeter, &next, id);
         }
     }
+    perimeter[i].1 = walls;
     count
 }
 
