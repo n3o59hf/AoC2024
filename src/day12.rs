@@ -79,7 +79,7 @@ fn calculate_sides(
         .get(position)
         .expect("Should not be called on non existing position");
     let letter = Some(&letter);
-    let i = map.indice(position); 
+    let i = map.indice(position);
     perimeter[i].0 = id;
 
     let mut count = 1;
