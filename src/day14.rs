@@ -13,6 +13,9 @@ pub fn part2(input: &str) -> impl Display {
 }
 // CodSpeed compatibility end
 type Robot = (i32, i32, i32, i32);
+const W: i32 = 101;
+const H: i32 = 103;
+const TURNS: i32 = 100;
 
 #[aoc_generator(day14)]
 fn parse(input: &str) -> Vec<Robot> {
@@ -38,8 +41,6 @@ fn parse(input: &str) -> Vec<Robot> {
 }
 
 fn part1_solver(input: &[Robot], w: i32, h: i32) -> usize {
-    const TURNS: i32 = 100;
-
     let w_div = w / 2;
     let h_div = h / 2;
 
@@ -59,27 +60,22 @@ fn part1_solver(input: &[Robot], w: i32, h: i32) -> usize {
 
 #[aoc(day14, part1)]
 fn part1_solution(input: &[Robot]) -> usize {
-    let w = 101;
-    let h = 103;
-
-    part1_solver(input, w, h)
+    part1_solver(input, W, H)
 }
 
 #[aoc(day14, part2)]
 fn part2_solution(input: &[Robot]) -> i32 {
-    let w = 101;
-    let h = 103;
-    let turns = (0..(w * h)).collect::<Vec<i32>>();
+    let turns = (0..(W * H)).collect::<Vec<i32>>();
     *turns
         .par_iter()
         .map(|turns| {
-            let mut seen_map = vec![false; (w * h) as usize];
+            let mut seen_map = vec![false; (W * H) as usize];
             let seen: usize = input
                 .iter()
                 .map(|robot| {
-                    let x = (robot.0 + (robot.1 + w) * turns) % w;
-                    let y = (robot.2 + (robot.3 + h) * turns) % h;
-                    let index = (x + y * w) as usize;
+                    let x = (robot.0 + (robot.1 + W) * turns) % W;
+                    let y = (robot.2 + (robot.3 + H) * turns) % H;
+                    let index = (x + y * W) as usize;
                     if seen_map[index] {
                         0
                     } else {
