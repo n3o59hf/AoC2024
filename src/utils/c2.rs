@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Display, Formatter};
 use std::ops::{Add, Mul, Sub};
 
 pub static C2_8_NEIGHBORS: [C2; 8] = [
@@ -115,7 +115,7 @@ pub struct C2Field<T> {
 #[allow(dead_code)]
 impl<T> C2Field<T>
 where
-    T: Clone + Default,
+    T: Clone + Default + PartialEq + Eq,
 {
     fn indices(width: usize, height: usize) -> Vec<C2> {
         let mut indices = Vec::with_capacity(width * height);
@@ -165,6 +165,13 @@ where
         coord.y as usize * self.width + coord.x as usize
     }
 
+    #[inline(always)]
+    pub fn coord(&self, indice: usize) -> C2 {
+        let x = indice % self.width;
+        let y = indice / self.width;
+        C2::new(x as i32, y as i32)
+    }
+
     pub fn get(&self, coord: &C2) -> Option<&T> {
         if coord.x < 0
             || coord.y < 0
@@ -208,5 +215,24 @@ where
     #[inline]
     pub fn height(&self) -> usize {
         self.height
+    }
+
+    pub fn find_first(&self, value: T) -> Option<C2> {
+        self.store
+            .iter()
+            .position(|v| *v == value)
+            .map(|p| self.coord(p))
+    }
+}
+
+impl Display for C2Field<char> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        for y in 0..self.height {
+            for x in 0..self.width {
+                write!(f, "{}", self.store[x + y * self.width])?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
     }
 }
