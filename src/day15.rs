@@ -1,6 +1,6 @@
-use std::fmt::Display;
 use crate::utils::c2::{C2Field, C2, C2_DOWN, C2_LEFT, C2_RIGHT, C2_UP};
 use aoc_runner_derive::{aoc, aoc_generator};
+use std::fmt::Display;
 
 // CodSpeed compatibility
 #[allow(dead_code)]

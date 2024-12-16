@@ -89,6 +89,13 @@ impl C2 {
         }
     }
 
+    pub fn rotate_left(&self) -> Self {
+        C2 {
+            x: self.y,
+            y: -self.x,
+        }
+    }
+
     pub fn mirror(self, around: C2) -> C2 {
         let delta = around - self;
         around + delta
@@ -138,12 +145,15 @@ where
     }
 
     pub fn from_string(input: &str, mapping: fn(char) -> T) -> C2Field<T> {
-        let mut store = Vec::new();
+        let mut store = Vec::with_capacity(input.len());
         let width = input.find("\n").expect("At least one endline");
         let lines = input.lines();
         let mut height = 0;
 
         for line in lines {
+            if line.trim().is_empty() {
+                continue;
+            }
             height += 1;
             let line = line.chars().map(mapping);
             store.extend(line);
@@ -157,6 +167,41 @@ where
             height,
             store,
             indices: Self::indices(width, height),
+        }
+    }
+
+    pub fn from_string_indexed<F>(input: &str, mapping: &mut F) -> C2Field<T>
+    where
+        F: FnMut(C2, char) -> T,
+    {
+        let mut store = Vec::with_capacity(input.len());
+        let mut indices = Vec::with_capacity(input.len());
+        let width = input.find("\n").expect("At least one endline");
+        let lines = input.lines();
+        let mut height = 0;
+
+        for line in lines {
+            if line.trim().is_empty() {
+                continue;
+            }
+            for (c_line, t_line) in line.chars().enumerate().map(|(i, c)| {
+                let coord = C2::new(i as i32, height as i32);
+                (coord, mapping(coord, c))
+            }) {
+                store.push(t_line);
+                indices.push(c_line);
+            }
+            height += 1;
+            if store.len() != width * height {
+                panic!("Not all lines are the same")
+            }
+        }
+
+        C2Field {
+            width,
+            height,
+            store,
+            indices,
         }
     }
 
@@ -222,6 +267,25 @@ where
             .iter()
             .position(|v| *v == value)
             .map(|p| self.coord(p))
+    }
+
+    pub fn map<F, T2>(&self, mut f: F) -> C2Field<T2>
+    where
+        F: FnMut(&C2, &T) -> T2,
+    {
+        let new_store: Vec<T2> = self
+            .indices
+            .iter()
+            .zip(self.store.iter())
+            .map(|(c, v)| f(c, v))
+            .collect();
+
+        C2Field {
+            width: self.width,
+            height: self.height,
+            store: new_store,
+            indices: self.indices.clone(),
+        }
     }
 }
 
