@@ -1,7 +1,7 @@
 use crate::utils::c2::{C2Field, C2, C2_DOWN, C2_LEFT, C2_RIGHT, C2_UP};
 use aoc_runner_derive::{aoc, aoc_generator};
+use binary_heap_plus::BinaryHeap;
 use fxhash::{FxHashMap, FxHashSet};
-use std::cmp::Ordering;
 use std::fmt::Display;
 
 // CodSpeed compatibility
@@ -109,15 +109,43 @@ impl Move {
     }
 }
 
-// 81404 too high
-#[aoc(day16, part1)]
-fn part1_solution(input: &Map) -> u32 {
-    let map = input.0.clone();
+fn solve(start: C2, map: &C2Field<bool>) -> FxHashMap<Move, u32> {
     let direction = C2_RIGHT;
-    let start = input.1;
-    let end = input.2;
 
-    let end_moves = [
+    let mut prices: FxHashMap<Move, u32> = FxHashMap::default();
+    let mut moves_to_check = BinaryHeap::new_by_key(|(c, _)| *c);
+
+    let start_move = Move {
+        position: start,
+        direction,
+    };
+
+    moves_to_check.push((0, start_move));
+    prices.insert(start_move, 0);
+
+    while let Some((_, m)) = moves_to_check.pop() {
+        let p = prices[&m];
+
+        for (next_move, cost) in m.get_possible_moves(map) {
+            let next_price = p + cost;
+
+            if let Some(&existing_price) = prices.get(&next_move) {
+                if next_price < existing_price {
+                    prices.insert(next_move, next_price);
+                    moves_to_check.push((!next_price, next_move));
+                }
+            } else {
+                prices.insert(next_move, next_price);
+                moves_to_check.push((!next_price, next_move));
+            }
+        }
+    }
+
+    prices
+}
+
+fn end_moves(end: C2) -> [Move; 4] {
+    [
         Move {
             position: end,
             direction: C2_UP,
@@ -134,99 +162,33 @@ fn part1_solution(input: &Map) -> u32 {
             position: end,
             direction: C2_RIGHT,
         },
-    ];
+    ]
+}
 
-    let mut moves_to_check: Vec<Move> = Vec::with_capacity((map.width() / 2) * (map.height() / 2));
-    let mut prices: FxHashMap<Move, u32> = FxHashMap::default();
+#[aoc(day16, part1)]
+fn part1_solution(input: &Map) -> u32 {
+    let map = &input.0;
+    let start = input.1;
+    let end = input.2;
 
-    let start_move = Move {
-        position: start,
-        direction,
-    };
-    moves_to_check.push(start_move);
-    prices.insert(start_move, 0);
+    let prices = solve(start, map);
 
-    while let Some(m) = moves_to_check.pop() {
-        let p = *prices.get(&m).expect("Should be present");
-        for next in m.get_possible_moves(&map) {
-            let next_price = p + next.1;
-            if let Some(pn) = prices.get(&next.0) {
-                if next_price < *pn {
-                    prices.insert(next.0, next_price);
-                    moves_to_check.push(next.0)
-                }
-            } else {
-                prices.insert(next.0, next_price);
-                moves_to_check.push(next.0)
-            }
-        }
-        moves_to_check.sort_by(|a, b| prices[b].partial_cmp(&prices[a]).unwrap_or(Ordering::Equal));
-    }
-    *end_moves
+    *end_moves(end)
         .iter()
         .filter_map(|m| prices.get(m))
         .min()
         .expect("Not reached end")
 }
 
-fn solve(start: C2, map: &C2Field<bool>) -> FxHashMap<Move, u32> {
-    let direction = C2_RIGHT;
-
-    let mut moves_to_check: Vec<Move> = Vec::with_capacity((map.width() / 2) * (map.height() / 2));
-    let mut prices: FxHashMap<Move, u32> = FxHashMap::default();
-
-    let start_move = Move {
-        position: start,
-        direction,
-    };
-    moves_to_check.push(start_move);
-    prices.insert(start_move, 0);
-
-    while let Some(m) = moves_to_check.pop() {
-        let p = *prices.get(&m).expect("Should be present");
-        for next in m.get_possible_moves(map) {
-            let next_price = p + next.1;
-            if let Some(pn) = prices.get(&next.0) {
-                if next_price < *pn {
-                    prices.insert(next.0, next_price);
-                    moves_to_check.push(next.0)
-                }
-            } else {
-                prices.insert(next.0, next_price);
-                moves_to_check.push(next.0)
-            }
-        }
-        moves_to_check.sort_by(|a, b| prices[b].partial_cmp(&prices[a]).unwrap_or(Ordering::Equal));
-    }
-
-    prices
-}
 #[aoc(day16, part2)]
 fn part2_solution(input: &Map) -> u32 {
-    let map = input.0.clone();
+    let map = &input.0;
     let start = input.1;
     let end = input.2;
 
-    let end_moves = [
-        Move {
-            position: end,
-            direction: C2_UP,
-        },
-        Move {
-            position: end,
-            direction: C2_DOWN,
-        },
-        Move {
-            position: end,
-            direction: C2_LEFT,
-        },
-        Move {
-            position: end,
-            direction: C2_RIGHT,
-        },
-    ];
+    let end_moves = end_moves(end);
 
-    let costs = solve(start, &map);
+    let costs = solve(start, map);
     let target_cost = *end_moves
         .iter()
         .filter_map(|m| costs.get(m))
@@ -245,7 +207,7 @@ fn part2_solution(input: &Map) -> u32 {
 
     while let Some((m, cost)) = backtrack.pop() {
         path.insert(m.position);
-        for (rev_move, move_cost) in m.get_possible_reverse_moves(&map) {
+        for (rev_move, move_cost) in m.get_possible_reverse_moves(map) {
             if cost >= move_cost {
                 let previous_cost = cost - move_cost;
                 if costs.get(&rev_move) == Some(&previous_cost) {
@@ -255,21 +217,9 @@ fn part2_solution(input: &Map) -> u32 {
         }
     }
 
-    let display_map = map.map(|c, b| {
-        if path.contains(c) {
-            'O'
-        } else if *b {
-            '.'
-        } else {
-            '#'
-        }
-    });
-
-    println!("{}", display_map);
-
     path.len() as u32
 }
-// 483
+
 #[cfg(test)]
 mod tests {
     use super::*;
