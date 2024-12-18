@@ -269,6 +269,15 @@ where
             .map(|p| self.coord(p))
     }
 
+    pub fn debug_print<F>(&self, mut f: F)
+    where
+        F: FnMut(&T) -> char,
+    {
+        let debug_map = &self.map(|_, v| f(v));
+        println!("{}", debug_map);
+        println!();
+    }
+
     pub fn map<F, T2>(&self, mut f: F) -> C2Field<T2>
     where
         F: FnMut(&C2, &T) -> T2,
