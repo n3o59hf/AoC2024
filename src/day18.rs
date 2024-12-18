@@ -1,7 +1,11 @@
+use crate::utils::binary_find;
 use crate::utils::c2::{C2Field, C2};
 use aoc_runner_derive::{aoc, aoc_generator};
+use binary_heap_plus::BinaryHeap;
 use prse::parse;
+use std::cmp::Ordering;
 use std::fmt::Display;
+
 // CodSpeed compatibility
 #[allow(dead_code)]
 pub fn part1(input: &str) -> impl Display {
@@ -24,51 +28,88 @@ fn parse(input: &str) -> Vec<C2> {
         .collect()
 }
 
-fn solve_1(obstacles: &[C2], limit: usize, size: usize) -> i32 {
-    let mut field: C2Field<i32> = C2Field::new(size, size);
-    for c in obstacles.iter().take(limit) {
-        field.set(c, -1);
+#[derive(Eq, PartialEq, Copy, Clone, Debug)]
+struct TravelEntry {
+    coord: C2,
+    moves: u16,
+}
+
+impl Ord for TravelEntry {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let moves_cmp = (!self.moves).cmp(&(!other.moves));
+
+        if moves_cmp == Ordering::Equal {
+            let a = self.coord.x + self.coord.y;
+            let b = other.coord.x + other.coord.y;
+            a.cmp(&b)
+        } else {
+            moves_cmp
+        }
+    }
+}
+
+impl TravelEntry {
+    fn new(coord: C2, moves: u16) -> Self {
+        Self { coord, moves }
+    }
+}
+
+impl PartialOrd for TravelEntry {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+fn find_min_moves(obstacles: &[C2], obstacle_limit: usize, size: usize) -> u16 {
+    let finish = C2::new((size - 1) as i32, (size - 1) as i32);
+    let mut field: C2Field<u16> = C2Field::new(size, size);
+    for c in obstacles.iter().take(obstacle_limit) {
+        field.set(c, u16::MAX);
     }
 
-    let mut to_visit: Vec<C2> = Vec::new();
-    to_visit.push(C2::new(0, 0));
+    let mut to_visit: BinaryHeap<TravelEntry> = BinaryHeap::new();
+    to_visit.push(TravelEntry::new(C2::new(0, 0), 0));
 
-    while let Some(c) = to_visit.pop() {
+    while let Some(t) = to_visit.pop() {
+        let c = t.coord;
         if let Some(moves) = field.get(&c) {
-            if *moves != -1 {
+            if *moves == 0 || t.moves <= *moves {
                 let moves = moves + 1;
                 for n in c.neighbors_4() {
+                    if n == finish {
+                        return moves;
+                    }
                     if let Some(n_moves) = field.get(&n) {
-                        if *n_moves > moves || *n_moves == 0 {
+                        if *n_moves == 0 || (*n_moves != u16::MAX && *n_moves > moves) {
                             field.set(&n, moves);
-                            to_visit.push(n);
+                            to_visit.push(TravelEntry::new(n, moves));
                         }
                     }
                 }
             }
         }
     }
-    *field
-        .get(&C2::new((size - 1) as i32, (size - 1) as i32))
-        .expect("Should exist")
+
+    u16::MAX
 }
 
 #[aoc(day18, part1)]
-fn part1_solution(input: &[C2]) -> i32 {
-    solve_1(input, 1024, 71)
+fn part1_solution(input: &[C2]) -> u16 {
+    find_min_moves(input, 1024, 71)
 }
 
-fn solve_2(obstacles: &[C2], limit: usize, size: usize) -> String {
-    for (i, c) in obstacles.iter().enumerate().skip(limit) {
-        if solve_1(obstacles, i + 1, size) == 0 {
-            return format!("{},{}", c.x, c.y);
-        }
-    }
-    panic!("Should have found the solution")
+fn find_blocking(obstacles: &[C2], limit: usize, size: usize) -> String {
+    let low = limit;
+    let high = obstacles.len();
+    let will_be_stuck = |limit: usize| find_min_moves(obstacles, limit + 1, size) != u16::MAX;
+    let block = binary_find(low, high, will_be_stuck);
+    let block_coord = obstacles[block];
+    format!("{},{}", block_coord.x, block_coord.y)
 }
+
 #[aoc(day18, part2)]
 fn part2_solution(input: &[C2]) -> String {
-    solve_2(input, 1024, 71)
+    find_blocking(input, 1024, 71)
 }
 
 #[cfg(test)]
@@ -101,11 +142,11 @@ mod tests {
 2,0"#;
     #[test]
     fn part1_example() {
-        assert_eq!(solve_1(&parse(SMALL_EXAMPLE), 12, 7), 22);
+        assert_eq!(find_min_moves(&parse(SMALL_EXAMPLE), 12, 7), 22);
     }
 
     #[test]
     fn part2_example() {
-        assert_eq!(solve_2(&parse(SMALL_EXAMPLE), 12, 7), "6,1");
+        assert_eq!(find_blocking(&parse(SMALL_EXAMPLE), 12, 7), "6,1");
     }
 }
