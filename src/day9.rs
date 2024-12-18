@@ -115,11 +115,9 @@ fn merge_free_spaces(vec: Vec<Entry>) -> Vec<Entry> {
 
     for item in vec {
         match (result.last_mut(), item) {
-            // Merge two adjacent `Number` variants by summing their values
             (Some(Entry::Free(existing)), Entry::Free(new)) => {
                 *existing += new;
             }
-            // Otherwise, just push the item to the result
             (_, new_item) => result.push(new_item),
         }
     }

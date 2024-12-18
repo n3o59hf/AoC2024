@@ -37,7 +37,7 @@ impl Display for C2 {
 }
 
 impl Add for C2 {
-    type Output = Self; // The resulting type after addition
+    type Output = Self;
     #[inline]
     fn add(self, other: Self) -> Self {
         Self {
@@ -47,9 +47,8 @@ impl Add for C2 {
     }
 }
 
-// Implementing the Sub trait
 impl Sub for C2 {
-    type Output = Self; // The resulting type after subtraction
+    type Output = Self;
     #[inline]
     fn sub(self, other: Self) -> Self {
         Self {
