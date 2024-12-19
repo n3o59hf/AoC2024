@@ -4,18 +4,18 @@ use aoc_runner_derive::{aoc, aoc_generator};
 use binary_heap_plus::BinaryHeap;
 use prse::parse;
 use std::cmp::Ordering;
-use std::fmt::Display;
 
 // CodSpeed compatibility
-#[allow(dead_code)]
-pub fn part1(input: &str) -> impl Display {
-    part1_solution(&parse(input))
+#[allow(dead_code, clippy::useless_format)]
+pub fn part1(input: &str) -> String {
+    format!("{}",part1_solution(&parse(input)))
 }
-#[allow(dead_code)]
-pub fn part2(input: &str) -> impl Display {
-    part2_solution(&parse(input))
+#[allow(dead_code, clippy::useless_format)]
+pub fn part2(input: &str) -> String {
+    format!("{}", part2_solution(&parse(input)))
 }
 // CodSpeed compatibility end
+
 #[aoc_generator(day18)]
 fn parse(input: &str) -> Vec<C2> {
     input

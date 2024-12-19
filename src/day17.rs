@@ -1,16 +1,15 @@
 use crate::day17::Opcode::{Adv, Bdv, Bst, Bxc, Bxl, Cdv, Jnz, Out};
 use aoc_runner_derive::{aoc, aoc_generator};
 use itertools::Itertools;
-use std::fmt::Display;
 
 // CodSpeed compatibility
-#[allow(dead_code)]
-pub fn part1(input: &str) -> impl Display {
-    part1_solution(&parse(input))
+#[allow(dead_code, clippy::useless_format)]
+pub fn part1(input: &str) -> String {
+    format!("{}",part1_solution(&parse(input)))
 }
-#[allow(dead_code)]
-pub fn part2(input: &str) -> impl Display {
-    part2_solution(&parse(input))
+#[allow(dead_code, clippy::useless_format)]
+pub fn part2(input: &str) -> String {
+    format!("{}", part2_solution(&parse(input)))
 }
 // CodSpeed compatibility end
 
