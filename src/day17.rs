@@ -5,7 +5,7 @@ use itertools::Itertools;
 // CodSpeed compatibility
 #[allow(dead_code, clippy::useless_format)]
 pub fn part1(input: &str) -> String {
-    format!("{}",part1_solution(&parse(input)))
+    format!("{}", part1_solution(&parse(input)))
 }
 #[allow(dead_code, clippy::useless_format)]
 pub fn part2(input: &str) -> String {
