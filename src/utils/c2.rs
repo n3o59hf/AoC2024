@@ -108,6 +108,11 @@ impl C2 {
             C2::new(self.x - 1, self.y),
         ]
     }
+
+    #[inline]
+    pub fn to_manhattan(self) -> u32 {
+        (self.x.abs() + self.y.abs()) as u32
+    }
 }
 
 #[derive(Default, Clone, Eq, PartialEq, Hash)]

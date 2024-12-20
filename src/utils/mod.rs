@@ -1,4 +1,5 @@
 pub mod c2;
+pub mod maze;
 
 pub fn binary_find<F>(mut low: usize, mut high: usize, f: F) -> usize
 where

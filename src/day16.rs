@@ -1,4 +1,5 @@
 use crate::utils::c2::{C2Field, C2, C2_DOWN, C2_LEFT, C2_RIGHT, C2_UP};
+use crate::utils::maze::{parse_maze, Maze};
 use aoc_runner_derive::{aoc, aoc_generator};
 use binary_heap_plus::BinaryHeap;
 use fxhash::{FxHashMap, FxHashSet};
@@ -17,26 +18,9 @@ pub fn part2(input: &str) -> impl Display {
 
 const PRICE_ROTATE: u32 = 1000;
 const PRICE_WALK: u32 = 1;
-type Map = (C2Field<bool>, C2, C2);
 #[aoc_generator(day16)]
-fn parse(input: &str) -> Map {
-    let mut s = C2::new(-1, -1);
-    let mut e = C2::new(-1, -1);
-
-    let map = C2Field::from_string_indexed(input, &mut |c, ch| match ch {
-        'S' => {
-            s = c;
-            true
-        }
-        'E' => {
-            e = c;
-            true
-        }
-        '.' => true,
-        _ => false,
-    });
-
-    (map, s, e)
+fn parse(input: &str) -> Maze {
+    parse_maze(input)
 }
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug, Hash)]
@@ -166,7 +150,7 @@ fn end_moves(end: C2) -> [Move; 4] {
 }
 
 #[aoc(day16, part1)]
-fn part1_solution(input: &Map) -> u32 {
+fn part1_solution(input: &Maze) -> u32 {
     let map = &input.0;
     let start = input.1;
     let end = input.2;
@@ -181,7 +165,7 @@ fn part1_solution(input: &Map) -> u32 {
 }
 
 #[aoc(day16, part2)]
-fn part2_solution(input: &Map) -> u32 {
+fn part2_solution(input: &Maze) -> u32 {
     let map = &input.0;
     let start = input.1;
     let end = input.2;
