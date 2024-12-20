@@ -3,6 +3,9 @@ use crate::utils::maze::{parse_maze, Maze};
 use aoc_runner_derive::{aoc, aoc_generator};
 use binary_heap_plus::BinaryHeap;
 use fxhash::FxHashMap;
+use rayon::iter::IndexedParallelIterator;
+use rayon::iter::ParallelIterator;
+use rayon::prelude::*;
 use std::io::Write;
 
 // CodSpeed compatibility
@@ -65,23 +68,25 @@ fn route(field: &C2Field<bool>, start: C2, end: C2) -> Vec<C2> {
 
 fn solve_for_constraints(input: &Maze, cheat_length: usize, cheat_cutoff: usize) -> usize {
     let cheat_length = cheat_length as u32;
-    let mut cheats = 0;
-    let base = route(&input.0, input.1, input.2);
-    for a in 0..base.len() - 1 {
-        let b_start = a + cheat_cutoff;
-        if b_start < base.len() {
-            for b in (a + cheat_cutoff)..base.len() {
-                let ca = base[a];
-                let cb = base[b];
+    let base_vec = route(&input.0, input.1, input.2);
+    let base = base_vec.as_slice();
+    let base_len = base.len();
+
+    base[..base_len - cheat_cutoff]
+        .par_iter()
+        .enumerate()
+        .map(|(a, &ca)| {
+            let mut count = 0;
+            for (b, &cb) in base[a + cheat_cutoff..].iter().enumerate() {
                 let d = (ca - cb).to_manhattan();
-                let save = b - a - d as usize;
+                let save = b + cheat_cutoff - d as usize;
                 if d <= cheat_length && save >= cheat_cutoff {
-                    cheats += 1;
+                    count += 1;
                 }
             }
-        }
-    }
-    cheats
+            count
+        })
+        .sum()
 }
 
 #[aoc(day20, part1)]
@@ -92,10 +97,6 @@ fn part1_solution(input: &Maze) -> usize {
 #[aoc(day20, part2)]
 fn part2_solution(input: &Maze) -> usize {
     solve_for_constraints(input, 20, 100)
-
-    //1174732 too high
-    //1056806 too high
-    //1052878 too high
 }
 
 #[cfg(test)]
