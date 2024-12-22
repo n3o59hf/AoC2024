@@ -144,27 +144,16 @@ fn calculate_all_transitions(data: &[(C2, char)]) -> FxHashMap<(char, char), Vec
     transitions
 }
 
-
-fn process_keypad_transitions(
-    input: String,
-) -> FxHashSet<String> {
+fn process_keypad_transitions(input: String) -> FxHashSet<String> {
     let mut combinations: Vec<String> = vec!["".to_string()];
 
-    for transition in format!("A{input}")
-        .chars()
-        .collect_vec()
-        .windows(2)
-    {
+    for transition in format!("A{input}").chars().collect_vec().windows(2) {
         if let &[from, to] = transition {
             let transitions = KEYPAD_TRANSITIONS.get(&(from, to)).expect("Transition");
 
             combinations = combinations
                 .iter()
-                .flat_map(|a| {
-                    transitions.iter().map(|b| {
-                        a.clone() + b
-                    })
-                })
+                .flat_map(|a| transitions.iter().map(|b| a.clone() + b))
                 .collect_vec();
         }
     }
@@ -207,10 +196,10 @@ fn calculate_robot_cost(b: char, c: char, depth: u8) -> u64 {
         let full_move = format!("A{forward}").chars().collect_vec();
 
         let mut sum = 0;
-        
-        for i in 0..full_move.len()-1 {
+
+        for i in 0..full_move.len() - 1 {
             let b = full_move[i];
-            let c = full_move[i+1];
+            let c = full_move[i + 1];
             sum += calculate_robot_cost(b, c, depth - 1);
         }
         sum
@@ -239,7 +228,7 @@ fn part1_solution(input: &Input) -> u64 {
 
 #[aoc(day21, part2)]
 fn part2_solution(input: &Input) -> u64 {
-    solve(input,25)
+    solve(input, 25)
 }
 
 #[cfg(test)]
