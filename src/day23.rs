@@ -42,18 +42,17 @@ fn part1_solution(input: &Input) -> usize {
     let mut chains: FxHashSet<Vec<String>> = FxHashSet::default();
 
     for (first, neighbors) in input {
-        for (second, last) in neighbors.iter().tuple_combinations() {
-            if input[second].contains(last) {
-                let mut chain = vec![first.clone(), second.clone(), last.clone()];
-                chain.sort();
-                chains.insert(chain);
+        if first.starts_with("t") {
+            for (second, last) in neighbors.iter().tuple_combinations() {
+                if input[second].contains(last) {
+                    let mut chain = vec![first.clone(), second.clone(), last.clone()];
+                    chain.sort();
+                    chains.insert(chain);
+                }
             }
         }
     }
-    chains
-        .iter()
-        .filter(|connection| connection.iter().any(|c| c.starts_with("t")))
-        .count()
+    chains.len()
 }
 
 fn find_largest(
