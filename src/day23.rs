@@ -1,6 +1,8 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use fxhash::{FxHashMap, FxHashSet};
+use fxhash::FxHashSet;
 use itertools::Itertools;
+use std::collections::{HashMap, HashSet};
+use std::hash::{BuildHasher, Hasher};
 
 // CodSpeed compatibility
 #[allow(dead_code, clippy::useless_format)]
@@ -12,7 +14,52 @@ pub fn part2(input: &str) -> String {
     format!("{}", part2_solution(&parse(input)))
 }
 // CodSpeed compatibility end
-type Input = FxHashMap<String, FxHashSet<String>>;
+
+struct TwoCharHasher {
+    hash: u64,
+}
+
+impl Hasher for TwoCharHasher {
+    fn finish(&self) -> u64 {
+        self.hash
+    }
+
+    fn write(&mut self, bytes: &[u8]) {
+        if bytes.len() == 2 {
+            let c1 = bytes[0];
+            let c2 = bytes[1];
+            if c1.is_ascii_lowercase() && c2.is_ascii_lowercase() {
+                self.hash = (c1 - b'a') as u64 * 26 + (c2 - b'a') as u64;
+            } else {
+                panic!("Wrong input");
+            }
+        } else {
+            panic!("Wrong input");
+        }
+    }
+
+    fn write_u8(&mut self, byte: u8) {
+        self.hash ^= (byte as u64).swap_bytes();
+    }
+
+    fn write_usize(&mut self, u: usize) {
+        self.hash ^= u as u64;
+    }
+}
+
+#[derive(Default, Copy, Clone)]
+struct TwoCharHasherBuilder;
+
+impl BuildHasher for TwoCharHasherBuilder {
+    type Hasher = TwoCharHasher;
+
+    fn build_hasher(&self) -> Self::Hasher {
+        TwoCharHasher { hash: 0 }
+    }
+}
+
+type S2HashSet = HashSet<String, TwoCharHasherBuilder>;
+type Input = HashMap<String, S2HashSet, TwoCharHasherBuilder>;
 
 #[aoc_generator(day23)]
 fn parse(input: &str) -> Input {
@@ -21,7 +68,7 @@ fn parse(input: &str) -> Input {
         .filter(|s| !s.is_empty())
         .map(|l| (l[0..2].to_string(), l[3..5].to_string()));
 
-    let mut connections: FxHashMap<String, FxHashSet<String>> = FxHashMap::default();
+    let mut connections: Input = Default::default();
 
     for (a, b) in links {
         connections
@@ -36,15 +83,13 @@ fn parse(input: &str) -> Input {
 
 #[aoc(day23, part1)]
 fn part1_solution(input: &Input) -> usize {
-    let mut chains: FxHashSet<Vec<String>> = FxHashSet::default();
+    let mut chains: FxHashSet<String> = FxHashSet::default();
 
     for (first, neighbors) in input {
         if first.starts_with("t") {
             for (second, last) in neighbors.iter().tuple_combinations() {
                 if input[second].contains(last) {
-                    let mut chain = vec![first.clone(), second.clone(), last.clone()];
-                    chain.sort();
-                    chains.insert(chain);
+                    chains.insert([first, second, last].iter().sorted().join(""));
                 }
             }
         }
@@ -53,9 +98,9 @@ fn part1_solution(input: &Input) -> usize {
 }
 
 fn find_largest(
-    r: &FxHashSet<String>,
-    mut p: FxHashSet<String>,
-    mut x: FxHashSet<String>,
+    r: &S2HashSet,
+    mut p: S2HashSet,
+    mut x: S2HashSet,
     connections: &Input,
     largest_network: &mut Vec<String>,
 ) {
@@ -74,19 +119,14 @@ fn find_largest(
                 .get(*v)
                 .map_or(0, |neighbors| neighbors.intersection(&p).count())
         })
-        .unwrap();
-    let mut candidates = p.difference(&connections[pivot]).cloned().collect_vec();
-    candidates.sort_unstable_by_key(|v| {
-        connections
-            .get(v)
-            .map_or(0, |neighbors| neighbors.intersection(&p).count())
-    });
-    for v in candidates {
+        .expect("Exists");
+
+    for v in p.difference(&connections[pivot]).cloned().collect_vec() {
         let mut new_network = r.clone();
         new_network.insert(v.clone());
 
         if let Some(neighbors) = connections.get(&v) {
-            let new_p: FxHashSet<String> = p.intersection(neighbors).cloned().collect();
+            let new_p: S2HashSet = p.intersection(neighbors).cloned().collect();
             if new_network.len() + new_p.len() > largest_network.len() {
                 find_largest(
                     &new_network,
