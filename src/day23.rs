@@ -1,5 +1,6 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use fxhash::{FxHashMap, FxHashSet};
+use itertools::Itertools;
 
 // CodSpeed compatibility
 #[allow(dead_code, clippy::useless_format)]
@@ -40,18 +41,12 @@ fn parse(input: &str) -> Input {
 fn part1_solution(input: &Input) -> usize {
     let mut chains: FxHashSet<Vec<String>> = FxHashSet::default();
 
-    for first in input.keys() {
-        if let Some(neighbors) = input.get(first) {
-            for second in neighbors {
-                if let Some(second_neighbors) = input.get(second) {
-                    for last in second_neighbors {
-                        if last != first && input.get(last).map_or(false, |x| x.contains(first)) {
-                            let mut chain = vec![first.clone(), second.clone(), last.clone()];
-                            chain.sort();
-                            chains.insert(chain);
-                        }
-                    }
-                }
+    for (first, neighbors) in input {
+        for (second, last) in neighbors.iter().tuple_combinations() {
+            if input[second].contains(last) {
+                let mut chain = vec![first.clone(), second.clone(), last.clone()];
+                chain.sort();
+                chains.insert(chain);
             }
         }
     }
@@ -63,8 +58,8 @@ fn part1_solution(input: &Input) -> usize {
 
 fn find_largest(
     r: &FxHashSet<String>,
-    p: &mut FxHashSet<String>,
-    x: &mut FxHashSet<String>,
+    mut p: FxHashSet<String>,
+    mut x: FxHashSet<String>,
     connections: &Input,
     largest_network: &mut Vec<String>,
 ) {
@@ -74,8 +69,11 @@ fn find_largest(
         }
         return;
     }
+    if r.len() + p.len() < largest_network.len() {
+        return;
+    }
 
-    let pivot = p.union(x).next().unwrap();
+    let pivot = p.union(&x).next().unwrap();
     let mut candidates: FxHashSet<_> = p.difference(&connections[pivot]).cloned().collect();
 
     while let Some(v) = candidates.iter().next().cloned() {
@@ -86,8 +84,8 @@ fn find_largest(
         let neighbors = connections.get(&v).unwrap();
         find_largest(
             &new_network,
-            &mut p.intersection(neighbors).cloned().collect(),
-            &mut x.intersection(neighbors).cloned().collect(),
+            p.intersection(neighbors).cloned().collect(),
+            x.intersection(neighbors).cloned().collect(),
             connections,
             largest_network,
         );
@@ -103,8 +101,8 @@ fn part2_solution(input: &Input) -> String {
 
     find_largest(
         &FxHashSet::default(),
-        &mut input.keys().cloned().collect(),
-        &mut FxHashSet::default(),
+        input.keys().cloned().collect(),
+        FxHashSet::default(),
         input,
         &mut largest_network,
     );
